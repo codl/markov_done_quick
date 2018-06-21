@@ -111,21 +111,22 @@ if __name__ == '__main__':
     messages = load_messages()
     orig_len = len(messages)
 
-    logger.info('Loaded %s messages from previous runs', orig_len)
+    logger.info('Loaded %s messages from disk', orig_len)
 
     if args.action == 'scrape':
         known_urls = frozenset(message[0] for message in messages)
-        for url in get_donation_urls(
-                start_at_page=args.start_at_page, known=known_urls):
-            sleep(.1)
-            message = get_message(url)
-            if message:
-                messages.append((url, message))
-            logger.debug('url %s', url)
-            logger.debug('message %s', message)
-            if len(messages) % 25 == 0:
-                dump_messages(messages)
-
-        logger.info('Found %s new donations', len(messages) - orig_len)
+        try:
+            for url in get_donation_urls(
+                    start_at_page=args.start_at_page, known=known_urls):
+                sleep(.1)
+                message = get_message(url)
+                if message:
+                    messages.append((url, message))
+                logger.debug('url %s', url)
+                logger.debug('message %s', message)
+                if len(messages) % 25 == 0:
+                    dump_messages(messages)
+        except KeyboardInterrupt:
+            logger.warning('Received interrupt. Stopping.')
 
         dump_messages(messages)

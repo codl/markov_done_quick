@@ -51,20 +51,20 @@ def get_message(url):
     if not resp.ok:
         raise Exception(resp)
     soup = BeautifulSoup(resp.text, 'html.parser')
-    comment = soup.table.find('td')
+    message = soup.table.find('td')
     if (
-            comment.find('i', class_='fa-question-circle')
-            or comment.find('i', class_='fa-times-circle')):
-        # comment is pending approval or rejected
+            message.find('i', class_='fa-question-circle')
+            or message.find('i', class_='fa-times-circle')):
+        # message is pending approval or rejected
         return None
-    return comment.get_text().strip()
+    return message.get_text().strip()
 
 
 def get_donation_urls(start_at_page=1, known=None):
     if not known:
         known = frozenset()
     for page in count(start_at_page):
-        logger.info('%s donations with comments found so far', len(known))
+        logger.info('%s donations with messages found so far', len(known))
         sleep(.1)
         new = get_and_parse_page(page)
         if not new:
@@ -111,7 +111,7 @@ if __name__ == '__main__':
     messages = load_messages()
     orig_len = len(messages)
 
-    logger.info('Loaded %s messages from disk', orig_len)
+    logger.info('Loaded %s donation messages from disk', orig_len)
 
     if args.action == 'scrape':
         known_urls = frozenset(message[0] for message in messages)

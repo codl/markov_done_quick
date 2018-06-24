@@ -1,9 +1,11 @@
 import argparse
 import csv
-import scrape
 import logging
 import sys
 from time import sleep
+
+import scrape
+import model
 
 logger = logging.getLogger('mdq')
 

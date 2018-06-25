@@ -40,7 +40,7 @@ if __name__ == '__main__':
     build_parser = actions.add_parser('build-model')
 
     say_parser = actions.add_parser('say')
-    say_parser.add_argument('count', type=int, default=1)
+    say_parser.add_argument('-c', '--count', type=int, default=1)
 
     args = parser.parse_args()
 

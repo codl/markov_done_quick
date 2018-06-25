@@ -1,3 +1,9 @@
+> Long time watcher, fifth time watching, first time watcher, first time Donating. It's gone ahead and put this $25 for each time.
+
+> May I suggest we kill cancer!
+
+> Greeting from Norway! And of course Save the animals. Kill the animals
+
 ## install
 
 ```sh

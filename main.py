@@ -40,6 +40,7 @@ if __name__ == '__main__':
     build_parser = actions.add_parser('build-model')
 
     say_parser = actions.add_parser('say')
+    say_parser.add_argument('count', type=int, default=1)
 
     args = parser.parse_args()
 
@@ -77,7 +78,20 @@ if __name__ == '__main__':
         dump_messages(messages)
 
     elif args.action == 'build-model':
-        logger.error('not implemented')
+        m = model.TrigramMarkovChain()
+        for message in messages:
+            m.ingest(message[1])
+        m.save('model.pickle')
+
 
     elif args.action == 'say':
-        logger.error('not implemented')
+        m = model.TrigramMarkovChain()
+        try:
+            m.load('model.pickle')
+        except OSError:
+            logger.error('Couldn\'t load model. Did you build the model first?')
+            sys.exit(1)
+        for i in range(args.count):
+            if i > 0:
+                print(' • • •')
+            print(m.make_phrase())

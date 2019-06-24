@@ -3,6 +3,7 @@ import requests
 from itertools import count
 from urllib.parse import urljoin
 import logging
+from time import sleep
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +28,9 @@ def get_and_parse_page(n=1):
         if resp.status_code == 404:
             logger.info('Page %s does not exist', n)
             return None
+        elif resp.status_code == 429:
+            logger.info('Rate limited for %s seconds', resp.headers['retry-after'])
+            raise RateLimited(int(resp.headers['retry-after']))
         else:
             raise Exception(resp)
     soup = BeautifulSoup(resp.text, 'html.parser')
@@ -42,11 +46,17 @@ def parse_row(row_soup):
         return cols[2].a['href']
 
 
-def get_message(url):
+def get_message(url, try_not_to_get_rate_limited=True):
     session = get_session()
     resp = session.get(url)
+    if try_not_to_get_rate_limited:
+        sleep(2)
     if not resp.ok:
-        raise Exception(resp)
+        if resp.status_code == 429:
+            logger.info('Rate limited for %s seconds', resp.headers['retry-after'])
+            raise RateLimited(int(resp.headers['retry-after']))
+        else:
+            raise Exception(resp)
     soup = BeautifulSoup(resp.text, 'html.parser')
     message = soup.table.find('td')
     if (
@@ -69,3 +79,8 @@ def get_donation_urls(start_at_page=1, known=None):
         known = known.union(new)
         for url in new:
             yield url
+
+
+class RateLimited(Exception):
+    def __init__(self, seconds):
+        self.seconds = seconds
